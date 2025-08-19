@@ -3,22 +3,37 @@
 import { useEffect, useState } from 'react';
 import Tilt from 'react-parallax-tilt';
 import { HiOutlinePencilSquare, HiOutlineTrash } from "react-icons/hi2";
+import { motion, AnimatePresence } from 'framer-motion';
 
-const TimeBlock = ({ value, label }) => (
-  <div className="flex flex-col items-center justify-center relative">
-    
-    <span className="text-5xl font-bold text-sky-100 tracking-wider" style={{ textShadow: '0 0 15px rgba(255, 255, 255, 0.5)' }}>
-      {String(value).padStart(2, '0')}
-    </span>
-
-    <span className="text-sm text-white/70 uppercase tracking-widest mt-1">{label}</span>
-  </div>
-);
+const TimeCard = ({ value, label }) => {
+  return (
+    <div className="flex flex-col items-center justify-center">
+      <div className="relative w-20 h-24 bg-black/20 rounded-xl overflow-hidden">
+        <AnimatePresence>
+          <motion.div
+            key={value}
+            initial={{ y: '100%' }}
+            animate={{ y: '0%' }}
+            exit={{ y: '-100%' }}
+            transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+            className="absolute inset-0 flex items-center justify-center"
+          >
+            <span className="text-5xl font-bold text-sky-100" style={{ textShadow: '0 0 20px rgba(255, 255, 255, 0.7)' }}>
+              {String(value).padStart(2, '0')}
+            </span>
+          </motion.div>
+        </AnimatePresence>
+      </div>
+      <span className="text-sm text-white/70 uppercase tracking-widest mt-3">{label}</span>
+    </div>
+  );
+};
 
 export default function CountdownCard({ countdown, onEdit, onDelete }) {
   const calculateTimeLeft = () => {
     const difference = +new Date(countdown.date) - +new Date();
     let timeLeft = {};
+
 
     if (difference > 0) {
       timeLeft = {
@@ -28,7 +43,7 @@ export default function CountdownCard({ countdown, onEdit, onDelete }) {
         seconds: Math.floor((difference / 1000) % 60),
       };
     } else {
-       timeLeft = { days: 0, hours: 0, minutes: 0, seconds: 0 };
+      timeLeft = { days: 0, hours: 0, minutes: 0, seconds: 0 };
     }
     return timeLeft;
   };
@@ -37,7 +52,9 @@ export default function CountdownCard({ countdown, onEdit, onDelete }) {
 
   useEffect(() => {
     const timer = setInterval(() => {
-      setTimeLeft(calculateTimeLeft());
+      const newTimeLeft = calculateTimeLeft();
+      setTimeLeft(newTimeLeft);
+
     }, 1000);
 
     return () => clearInterval(timer);
@@ -46,38 +63,45 @@ export default function CountdownCard({ countdown, onEdit, onDelete }) {
 
   return (
     <Tilt
-      className="parallax-effect-glare-scale background-transparent"
-      perspective={500}
+      className="parallax-effect-glare-scale"
+      perspective={800}
       glareEnable={true}
-      glareMaxOpacity={0.45}
-      scale={1.02}
+      glareMaxOpacity={0.25}
+      glarePosition="all"
+      scale={1.05}
       gyroscope={true}
     >
-      <div className="bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20 shadow-lg shadow-sky-200/10 p-8 w-full transition-all duration-500 ease-out">
-        <div className="flex justify-between items-start mb-6">
-          <h2 className="text-2xl font-semibold text-sky-200">{countdown.title}</h2>
+      <div className="relative bg-white/10 backdrop-blur-xl rounded-3xl border border-white/20 shadow-2xl shadow-sky-500/20 p-8 w-full transition-all duration-500 ease-out overflow-hidden">        <div className="flex justify-between items-start mb-8">
+          <h2 className="text-3xl font-bold text-sky-100" style={{ textShadow: '0 0 10px rgba(224, 242, 254, 0.5)' }}>
+            {countdown.title}
+          </h2>
           
           <div className="flex gap-4">
-              <button 
+              <motion.button 
+                whileHover={{ scale: 1.1, rotate: -5 }}
+                whileTap={{ scale: 0.9 }}
                 onClick={() => onEdit(countdown)} 
-                className="text-white/70 hover:text-white transition-colors duration-300 cursor-pointer"
+                className="text-white/70 hover:text-white transition-colors duration-300"
               >
-                <HiOutlinePencilSquare className="h-6 w-6" />
-              </button>
-              <button 
+                <HiOutlinePencilSquare className="h-7 w-7" />
+              </motion.button>
+              <motion.button 
+                whileHover={{ scale: 1.1, rotate: 5 }}
+                whileTap={{ scale: 0.9 }}
                 onClick={() => onDelete(countdown.id)} 
-                className="text-rose-300/70 hover:text-rose-300 transition-colors duration-300 cursor-pointer"
+                className="text-rose-300/70 hover:text-rose-300 transition-colors duration-300"
               >
-                <HiOutlineTrash className="h-6 w-6" />
-              </button>
+
+                <HiOutlineTrash className="h-7 w-7" />
+              </motion.button>
           </div>
         </div>
         
         <div className="grid grid-cols-4 gap-4 text-center">
-          <TimeBlock value={timeLeft.days} label="Days" />
-          <TimeBlock value={timeLeft.hours} label="Hours" />
-          <TimeBlock value={timeLeft.minutes} label="Minutes" />
-          <TimeBlock value={timeLeft.seconds} label="Seconds" />
+          <TimeCard value={timeLeft.days} label="Days" />
+          <TimeCard value={timeLeft.hours} label="Hours" />
+          <TimeCard value={timeLeft.minutes} label="Minutes" />
+          <TimeCard value={timeLeft.seconds} label="Seconds" />
         </div>
       </div>
     </Tilt>

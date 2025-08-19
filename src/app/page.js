@@ -82,15 +82,14 @@ export default function Home() {
     }
   };
 
-
   return (
-    <div className="min-h-screen flex flex-col items-center justify-between font-sans text-gray-800">
+    <div className="min-h-screen flex flex-col items-center justify-between font-sans text-gray-800 ">
       <SkyBackground />
-      
+
       <div className="relative z-10 w-full flex flex-col flex-grow items-center">
         <Header onAddNew={() => handleOpenModal()} />
 
-        <main className="w-full max-w-4xl mx-auto px-4 flex-grow">
+        <main className="w-full max-w-5xl mx-auto px-4 flex-grow">
           {countdowns.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 justify-center items-center">
               {countdowns.map((countdown) => (
@@ -115,40 +114,40 @@ export default function Home() {
       </div>
 
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50">
-          <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md">
-            <h2 className="text-2xl font-bold mb-6 text-sky-900">
+        <div className="fixed inset-0 bg-white/20 backdrop-blur-sm flex items-center justify-center z-50 transition-opacity duration-300">
+          <div className="bg-white/10 backdrop-blur-lg rounded-2xl shadow-2xl p-8 w-full max-w-md border border-white/20">
+            <h2 className="text-2xl font-bold mb-6 text-sky-700">
               {editingId ? 'Edit Countdown' : 'New Countdown'}
             </h2>
             <form onSubmit={handleSaveCountdown}>
               <div className="mb-4">
-                <label htmlFor="title" className="block text-sky-800 mb-1">Title</label>
+                <label htmlFor="title" className="block text-sky-400 mb-1">Title</label>
                 <input
                   type="text"
                   id="title"
                   value={currentCountdown.title}
                   onChange={(e) => setCurrentCountdown({ ...currentCountdown, title: e.target.value })}
-                  className="w-full px-4 py-2 border border-sky-200 rounded-lg focus:ring-2 focus:ring-sky-400 outline-none"
+                  className="w-full px-4 py-2 bg-white/20 text-black border border-white/30 rounded-lg focus:ring-2 focus:ring-sky-400 outline-none placeholder-sky-200/50"
                   required
                   placeholder="Trip to the Alps"
                 />
               </div>
               <div className="mb-6">
-                <label htmlFor="date" className="block text-sky-800 mb-1">Date & Time</label>
+                <label htmlFor="date" className="block text-sky-400 mb-1">Date & Time</label>
                 <input
                   type="datetime-local"
                   id="date"
                   value={currentCountdown.date}
                   onChange={(e) => setCurrentCountdown({ ...currentCountdown, date: e.target.value })}
-                  className="w-full px-4 py-2 border border-sky-200 rounded-lg focus:ring-2 focus:ring-sky-400 outline-none"
+                  className="w-full px-4 py-2 bg-white/20 text-black border border-white/30 rounded-lg focus:ring-2 focus:ring-sky-400 outline-none"
                   required
                 />
               </div>
               <div className="flex justify-end gap-4">
-                <button type="button" onClick={handleCloseModal} className="text-gray-600 font-medium px-4 py-2 rounded-full hover:bg-gray-100 transition-colors">
+                <button type="button" onClick={handleCloseModal} className="text-red-300 font-medium px-4 py-2 rounded-full hover:bg-white/10 transition-colors">
                   Cancel
                 </button>
-                <button type="submit" className="bg-sky-500 hover:bg-sky-600 text-white font-bold py-2 px-6 rounded-full transition-colors">
+                <button type="submit" className="bg-sky-500 hover:bg-sky-600 text-white font-bold py-2 px-6 rounded-full transition-transform transform hover:scale-105">
                   Save
                 </button>
               </div>
