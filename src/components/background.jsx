@@ -1,119 +1,94 @@
 'use client';
 
-import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import { Stars } from '@react-three/drei';
-import { EffectComposer, Bloom } from '@react-three/postprocessing';
-import { useRef, useMemo } from 'react';
+import React, { useRef, useMemo } from 'react';
+import { Canvas, useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 
-const fragmentShader = `
-  uniform float u_time;
-  uniform vec2 u_mouse;
-  uniform vec2 u_resolution;
+function DarkBackground() {
+  const material = useRef(null);
 
-  vec2 hash( vec2 p ) {
-    p = vec2( dot(p,vec2(127.1,311.7)),
-              dot(p,vec2(269.5,183.3)) );
-    return -1.0 + 2.0*fract(sin(p)*43758.5453123);
-  }
+  const shaderArgs = useMemo(() => ({
+    uniforms: {
+      uTime: { value: 0 },
+      uColor1: { value: new THREE.Color('#F0F8FF') }, 
+      uColor2: { value: new THREE.Color('#87CEFA') },
+    },
+    vertexShader: `
+      varying vec2 vUv;
+      void main() {
+        vUv = uv;
+        gl_Position = vec4(position.xy, 0.0, 1.0);
+      }
+    `,
+    fragmentShader: `
+      uniform float uTime;
+      uniform vec3 uColor1;
+      uniform vec3 uColor2;
+      varying vec2 vUv;
 
-  float noise( in vec2 p ) {
-    vec2 i = floor( p );
-    vec2 f = fract( p );
-    
-    vec2 u = f*f*(3.0-2.0*f);
+      float random(vec2 st) {
+          return fract(sin(dot(st.xy, vec2(12.9898, 78.233))) * 43758.5453123);
+      }
 
-    return mix( mix( dot( hash( i + vec2(0.0,0.0) ), f - vec2(0.0,0.0) ), 
-                     dot( hash( i + vec2(1.0,0.0) ), f - vec2(1.0,0.0) ), u.x),
-                mix( dot( hash( i + vec2(0.0,1.0) ), f - vec2(0.0,1.0) ), 
-                     dot( hash( i + vec2(1.0,1.0) ), f - vec2(1.0,1.0) ), u.x), u.y);
-  }
+      float noise(vec2 st) {
+          vec2 i = floor(st);
+          vec2 f = fract(st);
+          float a = random(i);
+          float b = random(i + vec2(1.0, 0.0));
+          float c = random(i + vec2(0.0, 1.0));
+          float d = random(i + vec2(1.0, 1.0));
+          vec2 u = f * f * (3.0 - 2.0 * f);
+          return mix(a, b, u.x) + (c - a) * u.y * (1.0 - u.x) + (d - b) * u.y * u.x;
+      }
+      
+      float fbm(vec2 st) {
+          float value = 0.0;
+          float amplitude = 0.5;
 
-  float fbm(vec2 p) {
-    float value = 0.0;
-    float amplitude = 0.5;
-    for (int i = 0; i < 5; i++) {
-      value += amplitude * noise(p);
-      p *= 2.0;
-      amplitude *= 0.5;
-    }
-    return value;
-  }
+          for (int i = 0; i < 4; i++) {
+              value += amplitude * noise(st);
+              st *= 2.0;
+              amplitude *= 0.5;
+          }
+          return value;
+      }
 
-  void main() {
-    vec2 st = gl_FragCoord.xy / u_resolution.xy;
-    st.x *= u_resolution.x / u_resolution.y;
+      void main() {
+        vec2 st = vUv * 1.0;
 
-    vec2 mouse_normalized = u_mouse / u_resolution;
-    float mouse_dist = distance(st, mouse_normalized * vec2(u_resolution.x / u_resolution.y, 1.0));
-    vec2 warp = (mouse_normalized - st) * 0.2 / (mouse_dist + 0.1);
-    
-    vec2 p = st * 3.0 + warp;
 
-    p.x += u_time * 0.05;
+        float slowTime = uTime * 0.02;
 
-    float cloud_pattern = fbm(p);
-    
-    vec3 sky_color_top = vec3(0.1, 0.2, 0.4); 
-    vec3 sky_color_bottom = vec3(0.66, 0.76, 1.0);
-    
-    vec3 sky_color = mix(sky_color_bottom, sky_color_top, st.y);
-    
-    float cloud_coverage = smoothstep(0.4, 0.6, cloud_pattern);
-    vec3 cloud_color = vec3(1.0) * cloud_coverage;
-    
-    vec3 final_color = mix(sky_color, vec3(1.0), cloud_coverage * 0.7);
+        float noisePattern = fbm(st + slowTime);
 
-    gl_FragColor = vec4(final_color, 1.0);
-  }
-`;
+        float mixFactor = smoothstep(0.3, 0.7, noisePattern);
+        vec3 color = mix(uColor1, uColor2, mixFactor);
+        
+        gl_FragColor = vec4(color, 1.0);
+      }
+    `
+  }), []);
 
-function Scene() {
-  const shaderRef = useRef();
-  const { viewport, size } = useThree();
-
-  const uniforms = useMemo(
-    () => ({
-      u_time: { value: 0.0 },
-      u_mouse: { value: new THREE.Vector2(0, 0) },
-      u_resolution: { value: new THREE.Vector2(size.width, size.height) },
-    }),
-    [size]
-  );
-  
-  useFrame(({ clock, mouse }) => {
-    if (shaderRef.current) {
-      shaderRef.current.uniforms.u_time.value = clock.getElapsedTime();
-      shaderRef.current.uniforms.u_mouse.value.set(
-        (mouse.x * 0.5 + 0.5) * size.width,
-        (mouse.y * 0.5 + 0.5) * size.height
-      );
+  useFrame((state) => {
+    if (material.current) {
+      material.current.uniforms.uTime.value = state.clock.getElapsedTime();
     }
   });
 
   return (
-    <>
-      <mesh>
-        <planeGeometry args={[viewport.width, viewport.height]} />
-        <shaderMaterial
-          ref={shaderRef}
-          fragmentShader={fragmentShader}
-          uniforms={uniforms}
-        />
-      </mesh>
-      <Stars radius={100} depth={50} count={5000} factor={4} saturation={0} fade speed={1} />
-      <EffectComposer>
-        <Bloom luminanceThreshold={0.3} luminanceSmoothing={0.9} height={300} intensity={0.8} />
-      </EffectComposer>
-    </>
+    <mesh>
+      <planeGeometry args={[2, 2]} />
+      <shaderMaterial ref={material} args={[shaderArgs]} />
+    </mesh>
   );
 }
 
-export default function SkyBackground() {
+
+export default function Background() {
   return (
-    <div className="fixed top-0 left-0 w-full h-full -z-10">
+    <div className="fixed top-0 left-0 w-full h-full -z-20 bg-[#030617]">
       <Canvas>
-        <Scene />
+        <DarkBackground />
       </Canvas>
     </div>
   );

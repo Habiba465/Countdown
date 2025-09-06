@@ -83,7 +83,7 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-between font-sans text-gray-800 ">
+    <div className="min-h-screen flex flex-col items-center justify-between  text-gray-800 ">
       <SkyBackground />
 
       <div className="relative z-10 w-full flex flex-col flex-grow items-center">

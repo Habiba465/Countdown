@@ -8,7 +8,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 const TimeCard = ({ value, label }) => {
   return (
     <div className="flex flex-col items-center justify-center">
-      <div className="relative w-20 h-24 bg-black/20 rounded-xl overflow-hidden">
+      <div className="relative w-20 h-24 bg-blue-400 rounded-xl overflow-hidden">
         <AnimatePresence>
           <motion.div
             key={value}
@@ -24,7 +24,7 @@ const TimeCard = ({ value, label }) => {
           </motion.div>
         </AnimatePresence>
       </div>
-      <span className="text-sm text-white/70 uppercase tracking-widest mt-3">{label}</span>
+      <span className="text-sm text-blue-900 uppercase tracking-widest mt-3">{label}</span>
     </div>
   );
 };
@@ -72,7 +72,7 @@ export default function CountdownCard({ countdown, onEdit, onDelete }) {
       gyroscope={true}
     >
       <div className="relative bg-white/10 backdrop-blur-xl rounded-3xl border border-white/20 shadow-2xl shadow-sky-500/20 p-8 w-full transition-all duration-500 ease-out overflow-hidden">        <div className="flex justify-between items-start mb-8">
-          <h2 className="text-3xl font-bold text-sky-100" style={{ textShadow: '0 0 10px rgba(224, 242, 254, 0.5)' }}>
+          <h2 className="text-3xl font-bold text-blue-600" style={{ textShadow: '0 0 10px rgba(224, 242, 254, 0.5)' }}>
             {countdown.title}
           </h2>
           
@@ -81,7 +81,7 @@ export default function CountdownCard({ countdown, onEdit, onDelete }) {
                 whileHover={{ scale: 1.1, rotate: -5 }}
                 whileTap={{ scale: 0.9 }}
                 onClick={() => onEdit(countdown)} 
-                className="text-white/70 hover:text-white transition-colors duration-300"
+                className="text-blue-400 hover:text-blue-700 transition-colors duration-300"
               >
                 <HiOutlinePencilSquare className="h-7 w-7" />
               </motion.button>
@@ -89,7 +89,7 @@ export default function CountdownCard({ countdown, onEdit, onDelete }) {
                 whileHover={{ scale: 1.1, rotate: 5 }}
                 whileTap={{ scale: 0.9 }}
                 onClick={() => onDelete(countdown.id)} 
-                className="text-rose-300/70 hover:text-rose-300 transition-colors duration-300"
+                className="text-rose-400 hover:text-rose-700 transition-colors duration-300"
               >
 
                 <HiOutlineTrash className="h-7 w-7" />
