@@ -5,6 +5,7 @@ import Header from '@/components/header';
 import Footer from '@/components/footer';
 import CountdownCard from '@/components/countdown-card';
 import SkyBackground from '@/components/background'; 
+import CursorFollower from '@/components/cursor';
 
 export default function Home() {
 
@@ -85,7 +86,7 @@ export default function Home() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-between  text-gray-800 ">
       <SkyBackground />
-
+      <CursorFollower />
       <div className="relative z-10 w-full flex flex-col flex-grow items-center">
         <Header onAddNew={() => handleOpenModal()} />
 
@@ -104,7 +105,7 @@ export default function Home() {
           ) : (
             <div className="text-center mt-20">
               <p className="text-white text-xl drop-shadow-md">
-                No countdowns yet. Let's create one!
+                {"No countdowns yet. Let's create one!"}
               </p>
             </div>
           )}
